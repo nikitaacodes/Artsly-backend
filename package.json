@@ -1,0 +1,18 @@
+{
+  "name": "artsly-backend",
+  "version": "1.0.0",
+  "description": "backend",
+  "license": "ISC",
+  "author": "",
+  "type": "commonjs",
+  "main": "index.js",
+  "scripts": {
+    "test": "jest"
+  },
+  "dependencies": {
+    "bcrypt": "^6.0.0",
+    "cookie-parser": "^1.4.7",
+    "mongoose": "^8.16.0",
+    "nodemon": "^3.1.10"
+  }
+}
