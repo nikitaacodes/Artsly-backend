@@ -21,6 +21,22 @@ app.get("/user", async (req, res) => {
     res.status(400).send("something went wrong" + err.message);
   }
 });
+app.delete("/user/:id", async (req, res) => {
+  const userId = req.params.id;
+
+  try {
+    const deletedUser = await User.findByIdAndDelete(userId);
+
+    if (!deletedUser) {
+      return res.status(404).send("User not found");
+    }
+
+    res.status(200).send("User deleted successfully");
+  } catch (err) {
+    res.status(500).send("Error deleting user");
+  }
+});
+
 
 connectDB()
   .then(() => {
