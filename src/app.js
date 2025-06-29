@@ -1,11 +1,15 @@
 const express = require("express");
+const cookieParser = require("cookie-parser");
+
 const connectDB = require("./config/database");
 const app = express();
 app.use(express.json());
 const User = require("../src/models/user");
 const authRouter = require("./routes/auth");
 app.use("/", authRouter);
-
+app.use(cookieParser());
+const postRouter = require("./routes/post");
+app.use("/", postRouter);
 app.get("/user", async (req, res) => {
   try {
     const userEmail = req.body.emailId;
@@ -36,7 +40,6 @@ app.delete("/user/:id", async (req, res) => {
     res.status(500).send("Error deleting user");
   }
 });
-
 
 connectDB()
   .then(() => {
