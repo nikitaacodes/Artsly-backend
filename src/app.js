@@ -1,15 +1,21 @@
 const express = require("express");
-const cookieParser = require("cookie-parser");
-
 const connectDB = require("./config/database");
 const app = express();
-app.use(express.json());
-const User = require("../src/models/user");
-const authRouter = require("./routes/auth");
-app.use("/", authRouter);
+
+const cookieParser = require("cookie-parser");
 app.use(cookieParser());
+app.use(express.json());
+
+//models
+const User = require("../src/models/user");
+
+//routes
+const authRouter = require("./routes/auth");
 const postRouter = require("./routes/post");
+
+app.use("/", authRouter);
 app.use("/", postRouter);
+
 app.get("/user", async (req, res) => {
   try {
     const userEmail = req.body.emailId;
@@ -41,6 +47,44 @@ app.delete("/user/:id", async (req, res) => {
   }
 });
 
+app.patch("/user/:userId", async (req, res) => {
+  const userId = req.params?.userId;
+  const data = req.body;
+  try {
+    const ALLOWED_UPDATES = [
+      "name",
+      "userName",
+      "age",
+      "gender",
+      "about",
+      "profilePic",
+    ];
+
+    const isUpdateAllowed = Object.keys(data).every((k) =>
+      ALLOWED_UPDATES.includes(k)
+    );
+    if (!isUpdateAllowed) {
+      throw new Error("updteas not allowed");
+    }
+    if (data?.about > 100) {
+      throw new Error("too long");
+    }
+    const user = await User.findByIdAndUpdate(
+      {
+        _id: userId,
+      },
+      data,
+      {
+        returnDocument: "after",
+        runValidators: true,
+      }
+    );
+    console.log(user);
+    res.send("user updated ");
+  } catch (err) {
+    res.status(400).send("something went wrong");
+  }
+});
 connectDB()
   .then(() => {
     console.log("database connection established");
