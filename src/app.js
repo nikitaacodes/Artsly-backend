@@ -13,10 +13,14 @@ const User = require("../src/models/user");
 const authRouter = require("./routes/auth");
 const postRouter = require("./routes/post");
 const commentRouter = require("./routes/comment");
+const feedRouter = require("./routes/feed");
 
 app.use("/", authRouter);
 app.use("/", postRouter);
 app.use("/comments", commentRouter);
+app.use("/feed", feedRouter);
+
+//get user 
 
 app.get("/user", async (req, res) => {
   try {
@@ -33,6 +37,8 @@ app.get("/user", async (req, res) => {
     res.status(400).send("something went wrong" + err.message);
   }
 });
+
+//delete user
 app.delete("/user/:id", async (req, res) => {
   const userId = req.params.id;
 
@@ -49,6 +55,7 @@ app.delete("/user/:id", async (req, res) => {
   }
 });
 
+//update user info
 app.patch("/user/:userId", async (req, res) => {
   const userId = req.params?.userId;
   const data = req.body;
@@ -87,6 +94,8 @@ app.patch("/user/:userId", async (req, res) => {
     res.status(400).send("something went wrong");
   }
 });
+
+//Database
 connectDB()
   .then(() => {
     console.log("database connection established");
