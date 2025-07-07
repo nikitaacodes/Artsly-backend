@@ -12,9 +12,11 @@ const User = require("../src/models/user");
 //routes
 const authRouter = require("./routes/auth");
 const postRouter = require("./routes/post");
+const commentRouter = require("./routes/comment");
 
 app.use("/", authRouter);
 app.use("/", postRouter);
+app.use("/comments", commentRouter);
 
 app.get("/user", async (req, res) => {
   try {
