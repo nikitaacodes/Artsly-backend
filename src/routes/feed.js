@@ -5,7 +5,8 @@ const { userAuth } = require("../middleware/auth");
 
 feedRouter.get("/", userAuth, async (req, res) => {
   try {
-    const posts = await Post.find()
+    const userId = req.user._id;
+    const posts = await Post.find({ likes: { $ne: userId } })
       .populate("user", "userName profilePic")
       .sort({ createdAt: -1 })
       .limit(40);
@@ -14,5 +15,6 @@ feedRouter.get("/", userAuth, async (req, res) => {
     res.status(500).send("error :" + err.message);
   }
 });
+
 
 module.exports = feedRouter;
