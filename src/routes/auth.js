@@ -17,7 +17,11 @@ authRouter.post("/signup", async (req, res) => {
       password: passwordHash,
     });
     await user.save();
-    res.send("User created");
+    console.log("User created with ID:", user._id);
+    res.status(201).json({
+      message: "user creaed",
+      userId: user._id,
+    });
   } catch (err) {
     res.status(400).send("error:" + err.message);
   }

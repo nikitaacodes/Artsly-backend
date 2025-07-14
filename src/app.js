@@ -2,9 +2,17 @@ const express = require("express");
 const connectDB = require("./config/database");
 const app = express();
 
+const cors = require("cors");
+
 const cookieParser = require("cookie-parser");
 app.use(cookieParser());
 app.use(express.json());
+app.use(
+  cors({
+    origin: "http://localhost:5173",
+    credentials: true,
+  })
+);
 require("dotenv").config();
 //models
 const User = require("../src/models/user");
@@ -20,7 +28,7 @@ app.use("/", postRouter);
 app.use("/comments", commentRouter);
 app.use("/feed", feedRouter);
 
-//get user 
+//get user
 
 app.get("/user", async (req, res) => {
   try {
