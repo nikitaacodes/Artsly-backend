@@ -18,6 +18,7 @@ reqRouter.get("/sent", userAuth, async (req, res) => {
 });
 
 reqRouter.get("/received", userAuth, async (req, res) => {
+  //received req
   try {
     const userId = req.user._id;
     const receivedReq = await fRequest
