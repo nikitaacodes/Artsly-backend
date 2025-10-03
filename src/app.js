@@ -22,12 +22,15 @@ const authRouter = require("./routes/auth");
 const postRouter = require("./routes/post");
 const commentRouter = require("./routes/comment");
 const feedRouter = require("./routes/feed");
-
+const reqRouter = require("./routes/request");
+const storyRouter = require("./routes/story");
 app.use("/", authRouter);
 app.use("/", postRouter);
 app.use("/comments", commentRouter);
 app.use("/feed", feedRouter);
-
+app.use("/request", reqRouter);
+app.use("/story", storyRouter);
+app.use("/uploads", express.static("uploads"));
 //get user
 
 app.get("/user", async (req, res) => {
