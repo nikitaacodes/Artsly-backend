@@ -3,6 +3,9 @@ const { userAuth } = require("../middleware/auth");
 const User = require("../models/user");
 const fRequest = require("../models/Request");
 const reqRouter = express.Router();
+
+const mongoose = require("mongoose");
+
 reqRouter.get("/sent", userAuth, async (req, res) => {
   try {
     const userId = req.user._id;
@@ -72,8 +75,6 @@ reqRouter.post("/send", userAuth, async (req, res) => {
     res.status(500).send("error" + err.message);
   }
 });
-
-const mongoose = require("mongoose");
 
 reqRouter.patch("/accept/:requestId", userAuth, async (req, res) => {
   try {

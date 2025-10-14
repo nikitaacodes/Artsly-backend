@@ -45,7 +45,7 @@ storyRouter.get("/feed", userAuth, async (req, res) => {
 
     const twentyFourHourAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
     const userList = await Story.find({
-      user: { $in: userList },
+      user: { $in: storyList },
       createdAt: {
         $gte: twentyFourHourAgo,
       },
