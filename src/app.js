@@ -24,6 +24,7 @@ const commentRouter = require("./routes/comment");
 const feedRouter = require("./routes/feed");
 const reqRouter = require("./routes/request");
 const storyRouter = require("./routes/story");
+const { userAuth } = require("./middleware/auth");
 app.use("/", authRouter);
 app.use("/", postRouter);
 app.use("/comments", commentRouter);
@@ -33,17 +34,18 @@ app.use("/story", storyRouter);
 app.use("/uploads", express.static("uploads"));
 //get user
 
-app.get("/user", async (req, res) => {
+app.get("/user", userAuth, async (req, res) => {
   try {
-    const userEmail = req.body.emailId;
-    const users = await User.find({
-      emailId: userEmail,
+    const user = req.user;
+    res.json({
+      name: user.name,
+      userName: user.userName,
+      emailId: user.emailId,
+      age: user.age,
+      gender: user.gender,
+      about: user.about,
+      profilePic: user.profilePic,
     });
-    if (users.length === 0) {
-      res.status(400).send("user not found");
-    } else {
-      res.send(users);
-    }
   } catch (err) {
     res.status(400).send("something went wrong" + err.message);
   }
@@ -66,7 +68,7 @@ app.delete("/user/:id", async (req, res) => {
   }
 });
 
-//update user info
+// update user info
 app.patch("/user/:userId", async (req, res) => {
   const userId = req.params?.userId;
   const data = req.body;
@@ -84,25 +86,22 @@ app.patch("/user/:userId", async (req, res) => {
       ALLOWED_UPDATES.includes(k)
     );
     if (!isUpdateAllowed) {
-      throw new Error("updteas not allowed");
+      throw new Error("updates not allowed");
     }
-    if (data?.about > 100) {
+    if (data?.about?.length > 100) {
       throw new Error("too long");
     }
-    const user = await User.findByIdAndUpdate(
-      {
-        _id: userId,
-      },
-      data,
-      {
-        returnDocument: "after",
-        runValidators: true,
-      }
-    );
-    console.log(user);
-    res.send("user updated ");
+
+    const user = await User.findByIdAndUpdate({ _id: userId }, data, {
+      returnDocument: "after",
+      runValidators: true,
+    });
+
+    res.json({ message: "User updated successfully", user }); // ✅ return JSON
   } catch (err) {
-    res.status(400).send("something went wrong");
+    res
+      .status(400)
+      .json({ message: "something went wrong", error: err.message });
   }
 });
 
