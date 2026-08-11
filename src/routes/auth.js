@@ -1,23 +1,38 @@
 const express = require("express");
 const bcrypt = require("bcrypt");
 const User = require("../models/user");
+const { strictLimiter } = require("../middleware/rateLimiter");
+const { userAuth } = require("../middleware/auth");
 const authRouter = express.Router();
 
-authRouter.post("/signup", async (req, res) => {
+authRouter.post("/signup", strictLimiter, async (req, res) => {
   try {
     const { name, userName, emailId, password } = req.body;
+
+    if (!name || !userName || !emailId || !password) {
+      return res.status(400).json({ message: "All fields are required" });
+    }
+
+    const existingUser = await User.findOne({
+      $or: [{ emailId: emailId.toLowerCase() }, { userName }],
+    });
+
+    if (existingUser) {
+      return res
+        .status(409)
+        .json({ message: "Email or username already exists" });
+    }
 
     const passwordHash = await bcrypt.hash(password, 10);
 
     const user = new User({
       name,
       userName,
-      emailId,
+      emailId: emailId.toLowerCase(),
       password: passwordHash,
     });
 
     await user.save();
-    console.log("User created with ID:", user._id);
 
     res.status(201).json({
       message: "User created successfully",
@@ -28,43 +43,53 @@ authRouter.post("/signup", async (req, res) => {
   }
 });
 
-authRouter.post("/login", async (req, res) => {
+authRouter.post("/login", strictLimiter, async (req, res) => {
   try {
     const { emailId, password } = req.body;
+
+    if (!emailId || !password) {
+      return res
+        .status(400)
+        .json({ message: "Email and password are required" });
+    }
 
     const user = await User.findOne({ emailId: emailId.toLowerCase() });
 
     if (!user) {
-      return res
-        .status(404)
-        .json({ message: "User not found, email isn't present" });
+      return res.status(404).json({ message: "User not found" });
     }
 
     const isPasswordValid = await user.validatePassword(password);
     if (!isPasswordValid) {
-      return res.status(401).json({ message: "Password isn't correct" });
+      return res.status(401).json({ message: "Invalid password" });
     }
 
     const token = await user.getJWT();
-    console.log("Token:", token);
 
     res.cookie("token", token, {
       expires: new Date(Date.now() + 8 * 3600000),
-      httpOnly: true, // 🔒 security best practice
+      httpOnly: true,
       sameSite: "Lax",
     });
 
     res.status(200).json({
       message: "Login successful",
       token,
-      user,
+      user: {
+        _id: user._id,
+        name: user.name,
+        userName: user.userName,
+        emailId: user.emailId,
+        profilePic: user.profilePic,
+        role: user.role,
+      },
     });
   } catch (err) {
     res.status(500).json({ message: "Server error: " + err.message });
   }
 });
 
-authRouter.post("/logout", async (req, res) => {
+authRouter.post("/logout", userAuth, async (req, res) => {
   res.cookie("token", null, {
     expires: new Date(Date.now()),
   });

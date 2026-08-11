@@ -11,32 +11,31 @@ const postsSchema = new mongoose.Schema(
       required: true,
       maxlength: 1000,
     },
+    images: [
+      {
+        type: String,
+      },
+    ],
     likes: [
       {
         type: mongoose.Schema.Types.ObjectId,
         ref: "User",
       },
     ],
+    shares: {
+      type: Number,
+      default: 0,
+    },
     comments: [
       {
-        user: {
-          type: mongoose.Schema.Types.ObjectId,
-          ref: "User",
-        },
-        text: {
-          type: String,
-          required: true,
-        },
-        createdAt: {
-          type: Date,
-          default: Date.now,
-        },
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Comment",
       },
     ],
   },
   {
     timestamps: true,
-  }
+  },
 );
 
 module.exports = mongoose.model("Post", postsSchema);

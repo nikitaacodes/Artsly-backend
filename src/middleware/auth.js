@@ -3,11 +3,13 @@ const User = require("../models/user");
 
 const userAuth = async (req, res, next) => {
   try {
+  
     const { token } = req.cookies;
 
     if (!token) {
       return res.status(401).json({ message: "Token is missing or invalid" });
     }
+    
 
     const decodedObj = jwt.verify(token, process.env.JWT_SECRET);
     const { _id } = decodedObj;

@@ -38,10 +38,27 @@ const userSchema = new mongoose.Schema(
     },
     about: {
       type: String,
-      default: "this is default ",
+      default: "Artist",
     },
+    role: {
+      type: String,
+      enum: ["user", "admin", "moderator"],
+      default: "user",
+    },
+    followers: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+      },
+    ],
+    following: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+      },
+    ],
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 userSchema.methods.getJWT = async function () {
@@ -56,7 +73,7 @@ userSchema.methods.validatePassword = async function (passwordInputByUser) {
   const passwordHash = user.password;
   const isPasswordValid = await bcrypt.compare(
     passwordInputByUser,
-    passwordHash
+    passwordHash,
   );
   return isPasswordValid;
 };
